@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  email_server:
+    container_name: email_server
+    # The official v2 Traefik docker image
+    image: maildev/maildev
+    # Enables the web UI and tells Traefik to listen to docker
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.routers.email_client.entrypoints=http"
+      - "traefik.http.routers.email_client.rule=Host(`email.localhost`)"
+      - "traefik.http.routers.email_client.service=email-client"
+      - "traefik.http.services.email-client.loadbalancer.server.port=1080"
+    env_file:
+      - .env
+    ports:
+      - "1080:80"
+      - "1025:1025"
+    networks:
+      - traefik_proxy
+networks:
+  traefik_proxy:
+    external: true
